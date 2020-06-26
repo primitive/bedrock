@@ -1,0 +1,20 @@
+/*
+ Theme Name:   Primitive Digital . Bedrock
+ Theme URI:    https://primitivedigital.uk
+ Description:  Twenty Twenty Child Theme for Frontity Deployment
+ Author:       primitiveshaun
+ Author URI:   https://shaunknowles.uk
+ Template:     twentytwenty
+ Version:      0.1.0
+ Text Domain:  bedrock
+ Tags: frontity, twentytwenty, headless, primitiverocks
+ License: GNU General Public License v2 or later
+ License URI: http://www.gnu.org/licenses/gpl-2.0.html
+ GitHub Theme URI: @primitivedigital/bedrock
+*/
+
+
+/*
+    sk-dev: Do I want any fallback CSS in here as I won't be encuing any styles...
+    CRA approach - use system font fallback?
+*/
