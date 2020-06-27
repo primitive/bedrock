@@ -5,12 +5,13 @@
  Author:       primitiveshaun
  Author URI:   https://shaunknowles.uk
  Template:     twentytwenty
- Version:      0.1.0
+ Version:      0.0.1
  Text Domain:  bedrock
- Tags: frontity, twentytwenty, headless, primitiverocks
+ Tags: frontity, twentytwenty, headless, primitiveone, primitiverocks
  License: GNU General Public License v2 or later
  License URI: http://www.gnu.org/licenses/gpl-2.0.html
  GitHub Theme URI: @primitivedigital/bedrock
+ Dev Info: https://developer.wordpress.org/themes/advanced-topics/child-themes/
 */
 
 
@@ -18,3 +19,4 @@
     sk-dev: Do I want any fallback CSS in here as I won't be encuing any styles...
     CRA approach - use system font fallback?
 */
+    
