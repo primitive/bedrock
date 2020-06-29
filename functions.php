@@ -448,7 +448,7 @@ function filter_wpseo_xml_sitemap_post_url($get_permalink, $post) {
 }
 
 // keep in mind, sitemaps are cached. for development disable it using:
-add_filter( 'wpseo_enable_xml_sitemap_transient_caching', '__return_false');
+//add_filter( 'wpseo_enable_xml_sitemap_transient_caching', '__return_false');
 
 
 
