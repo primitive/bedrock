@@ -442,7 +442,7 @@ if( function_exists('acf_add_options_page') ) { acf_add_options_page(); }
 // https://github.com/Yoast/wordpress-seo/issues/14240
 // https://wordpress.org/support/topic/canonicalized-urls-to-external-domain-not-in-sitemap/
 
-//add_filter( 'wpseo_xml_sitemap_post_url', 'filter_wpseo_xml_sitemap_post_url', 10, 2 );
+add_filter( 'wpseo_xml_sitemap_post_url', 'filter_wpseo_xml_sitemap_post_url', 10, 2 );
 function filter_wpseo_xml_sitemap_post_url($get_permalink, $post) { 
 	return str_replace("primitive.press", "primitivedigital.uk", $get_permalink);
 }
