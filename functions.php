@@ -291,14 +291,14 @@ function display_theme_panel_fields() {
 
 function display_feature_boxes() {
     ?>
-    <h2>Block 1 (Located Above Footer Area)</h2>
+    <h2>Block 1 (Located Above Footer)</h2>
     <p>Enter any content for this section, typically information regarding...</p>
     <?php
         wp_editor(get_option('homepage_blurbone'), 'homepage_blurbone', $settings = array());
     ?>
     <hr>
 
-    <h2>Located Above Footer Area</h2>
+    <h2>Block 1 (Located Above Footer)</h2>
     <p>Enter any content for this section, typically information.</p>
     <?php
         wp_editor(get_option('homepage_blurbtwo'), 'homepage_blurbtwo', $settings = array());
@@ -432,18 +432,50 @@ add_filter( 'the_posts', function( $posts, \WP_Query $query )
 if( function_exists('acf_add_options_page') ) { acf_add_options_page(); }
 
 /**
- * Implement the Custom Header feature.
+ * Yoast Filters, see:
+ */
+// https://wordpress.org/support/topic/cant-understand-how-to-remove-wp-prefix-from-post-sitemap-xml/
+// https://gist.github.com/mohandere/4286103ce313d0cd6549
+// https://gist.github.com/amboutwe/8cfb7a3d8f05e580867341d4ff84141d
+
+// sk-dev: this fails due to:
+// https://github.com/Yoast/wordpress-seo/issues/14240
+// https://wordpress.org/support/topic/canonicalized-urls-to-external-domain-not-in-sitemap/
+
+//add_filter( 'wpseo_xml_sitemap_post_url', 'filter_wpseo_xml_sitemap_post_url', 10, 2 );
+function filter_wpseo_xml_sitemap_post_url($get_permalink, $post) { 
+	return str_replace("primitive.press", "primitivedigital.uk", $get_permalink);
+}
+
+// keep in mind, sitemaps are cached. for development disable it using:
+add_filter( 'wpseo_enable_xml_sitemap_transient_caching', '__return_false');
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/**
+ * Custom Header feature.
  */
 //require get_stylesheet_directory() . '/inc/custom-header.php';
 /**
- * Custom template tags for this theme.
+ * Custom template tags.
  */
 //require get_stylesheet_directory() . '/inc/template-tags.php';
 /**
- * Custom functions that act independently of the theme templates.
+ * Custom independent functions.
  */
-//require get_stylesheet_directory() . '/inc/extras.php';
+//require get_stylesheet_directory() . '/inc/utils.php';
 /**
- * Customizer additions.
+ * Customised Customiser.
  */
 //require get_stylesheet_directory() . '/inc/customizer.php';
