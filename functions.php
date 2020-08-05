@@ -91,6 +91,12 @@ add_action( 'after_setup_theme', 'add_theme_textdomain' );
 /* * sk-dev: END BASICS */ 
 
 
+/* * sk-dev: CORS / Headless / Decoupled / SSL tests 
+
+
+*/ 
+
+
 /* * sk-dev: test to allow defined origins - CORS */ 
 add_filter( 'allowed_http_origins', 'add_allowed_origins' );
 function add_allowed_origins( $origins ) {
@@ -129,6 +135,34 @@ function add_allowed_origins( $origins ) {
 remove_role('superchimp');
 add_role('superchimp', __('Theme Admin'), array('read' => true, 'edit_posts' => true, 'edit_pages' => true, 'edit_others_posts' => true, 'edit_published_posts' => true, 'edit_pages' => true, 'edit_others_pages' => true, 'edit_published_pages' => true, 'create_posts' => true, 'manage_categories' => true, 'publish_posts' => true, 'manage_options' => true, 'delete_posts' => true, 'edit_themes' => true, 'edit_theme_options' => true, 'delete_others_pages' => true, 'delete_published_pages' => true, 'delete_private_posts' => true));
 
+
+/**
+ * Customise the login page
+*/
+
+function update_login_logo() { ?>
+    <style type="text/css">
+        #login h1 a, .login h1 a {
+            background-image: url(https://primitive.press/wp-content/uploads/img/punky_logo_smcoral.png);
+            height:80px;
+            width:229px;
+            background-size: 229px 80px;
+            background-repeat: no-repeat;
+            padding-bottom: 15px;
+        }
+    </style>
+<?php }
+add_action( 'login_enqueue_scripts', 'update_login_logo' );
+
+function update_login_url() {
+    return home_url();
+}
+add_filter( 'login_headerurl', 'update_login_url' );
+ 
+function update_login_title() {
+    return 'Primitive Digital';
+}
+add_filter( 'login_headertitle', 'update_login_title' );
 
 
 
@@ -425,7 +459,6 @@ add_filter( 'the_posts', function( $posts, \WP_Query $query )
     }
     return $posts;
 }, 10, 2 );
-
 
 
 
