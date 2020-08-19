@@ -5,7 +5,8 @@
  *
  * @link https://developer.wordpress.org/themes/basics/theme-functions/
  *
- * @package Bedrock
+ * @package WordPress
+ * @subpackage Bedrock
  * @since 1.0.0
  */
 
@@ -93,18 +94,28 @@ add_action( 'after_setup_theme', 'add_theme_textdomain' );
 
 /* * sk-dev: CORS / Headless / Decoupled / SSL tests 
 
+WP/PHP host:
+To keep the native staging, cache plugin and wp tools I need to install wp to the root directory.
+A records not supported on the root domain.
+CCA records not supported.
+
 
 */ 
 
 
 /* * sk-dev: test to allow defined origins - CORS */ 
-add_filter( 'allowed_http_origins', 'add_allowed_origins' );
-function add_allowed_origins( $origins ) {
-    $origins[] = 'https://primitivedigital.co.uk';
-    $origins[] = 'https://primitivedigital.uk';
-    $origins[] = 'https://primitive.press';
-    return $origins;
-} 
+//add_filter( 'allowed_http_origins', 'add_allowed_origins' );
+//function add_allowed_origins( $origins ) {
+//   $origins[] = 'https://primitivedigital.co.uk';
+//    $origins[] = 'https://primitivedigital.uk';
+//    $origins[] = 'https://primitive.press';
+//    return $origins;
+//} 
+
+function add_cors_http_header(){
+    header("Access-Control-Allow-Origin: *");
+}
+add_action('init','add_cors_http_header');
 
 /* * sk-dev: test to set headers for specified domains */ 
 // Notice: Undefined index: HTTP_ORIGIN / https://stackoverflow.com/questions/41231116/serverhttp-origin-doesnt-work
