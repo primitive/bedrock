@@ -57,8 +57,11 @@ function theme_enqueue_styles() {
 
 	// Get the theme data
     $the_theme = wp_get_theme();
+
+    if( is_user_logged_in() && !current_user_can( 'administrator' ) ) {
+        wp_enqueue_style( 'bedrock-styles', 'https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css', array(), $the_theme->get( 'Version' ) );
+    }
     
-    wp_enqueue_style( 'bedrock-styles', 'https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css', array(), $the_theme->get( 'Version' ) );
 
     //wp_enqueue_style( 'bedrock-styles', get_stylesheet_directory_uri() . '/css/child-theme.min.css', array(), $the_theme->get( 'Version' ) );
     //wp_enqueue_script( 'jquery');
@@ -67,11 +70,6 @@ function theme_enqueue_styles() {
     //wp_enqueue_style( 'fonts', 'https://fonts.googleapis.com/css?family=Josefin+Sans:100|Lato:300,400,700' );
     //wp_enqueue_style( 'icons', 'https://cdnjs.cloudflare.com/ajax/libs/ionicons/1.5.2/css/ionicons.min.css' );
     //wp_enqueue_style( 'fa', 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css' );
-
-    //wp_enqueue_style( 'build-css', get_stylesheet_directory_uri() . '/build/static/css/main.24573955.chunk.css' );
-    //wp_enqueue_script( 'react', get_template_directory_uri() . '/js/react.js' );
-    //wp_enqueue_script( 'build-js', get_stylesheet_directory_uri() . '/build/static/js/2.77b00cea.chunk.js', array ( 'jquery' ) );
-    //wp_enqueue_script( 'main-js', get_stylesheet_directory_uri() . '/build/static/js/main.307b5e5c.chunk.js', array ( 'jquery' ) );
 
     /*
     if ( is_singular() && comments_open() && get_option( 'thread_comments' ) ) {
@@ -92,12 +90,14 @@ add_action( 'after_setup_theme', 'add_theme_textdomain' );
 /* * sk-dev: END BASICS */ 
 
 
+
 /* * sk-dev: CORS / Headless / Decoupled / SSL tests 
 
 WP/PHP host:
 To keep the native staging, cache plugin and wp tools I need to install wp to the root directory.
 A records not supported on the root domain.
 CCA records not supported.
+Free SSL certs, need to use the hosts nameservers
 
 
 */ 
@@ -132,7 +132,7 @@ add_action('init','add_cors_http_header');
 //add_action('wp_headers','just_add_cors_http_header');
 //function just_add_cors_http_header($headers){ $headers['Access-Control-Allow-Origin'] = '*'; return $headers; }
 
-/* * sk-dev: sledgehammer 2 */ 
+/* * sk-dev: sledgehammer 3 */ 
 //add_action( 'rest_api_init', function() { header( "Access-Control-Allow-Origin: *" ); } );
 
 
@@ -143,9 +143,15 @@ add_action('init','add_cors_http_header');
  * Create a custom Theme SuperAdmin role / rights
 */
 
-remove_role('superchimp');
-add_role('superchimp', __('Theme Admin'), array('read' => true, 'edit_posts' => true, 'edit_pages' => true, 'edit_others_posts' => true, 'edit_published_posts' => true, 'edit_pages' => true, 'edit_others_pages' => true, 'edit_published_pages' => true, 'create_posts' => true, 'manage_categories' => true, 'publish_posts' => true, 'manage_options' => true, 'delete_posts' => true, 'edit_themes' => true, 'edit_theme_options' => true, 'delete_others_pages' => true, 'delete_published_pages' => true, 'delete_private_posts' => true));
-
+function add_custom_roles() {
+    $roles_created = get_option('custom_roles_check');
+    if ( !$roles_created ) {
+        //remove_role('superchimp');
+        add_role('superchimp', __('Theme Admin'), array('read' => true, 'edit_posts' => true, 'edit_pages' => true, 'edit_others_posts' => true, 'edit_published_posts' => true, 'edit_pages' => true, 'edit_others_pages' => true, 'edit_published_pages' => true, 'create_posts' => true, 'manage_categories' => true, 'publish_posts' => true, 'manage_options' => true, 'delete_posts' => true, 'edit_themes' => true, 'edit_theme_options' => true, 'delete_others_pages' => true, 'delete_published_pages' => true, 'delete_private_posts' => true));
+        update_option( 'custom_roles_check', true );
+    }
+}
+add_action('after_setup_theme','add_custom_roles');
 
 /**
  * Customise the login page
@@ -154,7 +160,7 @@ add_role('superchimp', __('Theme Admin'), array('read' => true, 'edit_posts' => 
 function update_login_logo() { ?>
     <style type="text/css">
         #login h1 a, .login h1 a {
-            background-image: url(https://primitive.press/wp-content/uploads/img/punky_logo_smcoral.png);
+            background-image: url(https://api.primitivedigital.uk/wp-content/uploads/img/punky_logo_smcoral.png);
             height:80px;
             width:229px;
             background-size: 229px 80px;
@@ -255,7 +261,6 @@ function add_theme_settings_page() {
         <p>theme content display settings</p>
 
         <code>
-
             primitiveone: {
 
                 footer: {
@@ -271,7 +276,8 @@ function add_theme_settings_page() {
                 }
             }
         </code>
-        <p>Twenty Twenty Child theme to work with primitiverocks, see <a href="https://primitivedigital.uk/blog/primitiveone">Primitive Digital</a>.</p>
+
+        <p>Twenty Twenty Child theme to work with primitive-theme, see <a href="https://primitivedigital.uk/blog/primitiveone">Primitive Digital</a>.</p>
     </div>
 
 <?php
@@ -326,7 +332,6 @@ function display_theme_panel_fields() {
     //register_setting("homepage_data", "homepage_blurbone");
     //register_setting("homepage_data", "homepage_blurbtwo");
     //register_setting("homepage_data", "homepage_section_title_blog");
-    //register_setting("homepage_data", "join_the_box_message");
     // register_setting("homepage_data", "stores_page_feature");
     //register_setting("homepage_data", "facebook");
     //register_setting("homepage_data", "twitter");
@@ -384,7 +389,7 @@ function theme_settings_general_fields() {
     add_settings_field("footer_background", null, "theme_settings_menus_show_fields", "theme-options", "theme_settings_options");
     add_settings_field("footer_logo", null, "theme_settings_menus_show_fields", "theme-options", "theme_settings_options");
     add_settings_field("footer_background", null, "theme_settings_menus_show_fields", "theme-options", "theme_settings_options");
-    register_setting("theme_settings_options", "background_image");
+    
     register_setting("theme_settings_options", "company_name");
     register_setting("theme_settings_options", "company_tag");
     register_setting("theme_settings_options", "company_logo");
@@ -392,10 +397,12 @@ function theme_settings_general_fields() {
     register_setting("theme_settings_options", "company_address");
     register_setting("theme_settings_options", "company_contact_phone");
     register_setting("theme_settings_options", "company_contact_email");
-    register_setting("theme_settings_options", "header_company_phone");
-    register_setting("theme_settings_options", "header_company_email");
     register_setting("theme_settings_options", "company_copyright");
     register_setting("theme_settings_options", "company_legal");
+
+    register_setting("theme_settings_options", "background_image");
+    register_setting("theme_settings_options", "header_company_phone");
+    register_setting("theme_settings_options", "header_company_email");
     register_setting("theme_settings_options", "footer_location_title");
     register_setting("theme_settings_options", "footer_contactform");
     register_setting("theme_settings_options", "footer_background");
@@ -482,24 +489,20 @@ if( function_exists('acf_add_options_page') ) { acf_add_options_page(); }
 // https://gist.github.com/mohandere/4286103ce313d0cd6549
 // https://gist.github.com/amboutwe/8cfb7a3d8f05e580867341d4ff84141d
 
-// sk-dev: this fails due to:
+// sk-dev: this fails, Yoast removes external urls
+// pretty easy to hack the pluging files to fix but that prevents auto-updates
+
+//add_filter( 'wpseo_xml_sitemap_post_url', 'filter_wpseo_xml_sitemap_post_url', 10, 2 );
+//function filter_wpseo_xml_sitemap_post_url($get_permalink, $post) { 
+//	return str_replace("api.primitivedigital.uk", "primitivedigital.uk", $get_permalink);
+//}
 // https://github.com/Yoast/wordpress-seo/issues/14240
 // https://wordpress.org/support/topic/canonicalized-urls-to-external-domain-not-in-sitemap/
 
-add_filter( 'wpseo_xml_sitemap_post_url', 'filter_wpseo_xml_sitemap_post_url', 10, 2 );
-function filter_wpseo_xml_sitemap_post_url($get_permalink, $post) { 
-	return str_replace("primitive.press", "primitivedigital.uk", $get_permalink);
-}
+
 
 // keep in mind, sitemaps are cached. for development disable it using:
 add_filter( 'wpseo_enable_xml_sitemap_transient_caching', '__return_false');
-
-
-
-
-
-
-
 
 
 
