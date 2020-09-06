@@ -13,36 +13,17 @@
 // Exit if accessed directly.
 defined( 'ABSPATH' ) || exit;
 
-/* sk-dev: random bits. we're all a little bit mad here...
-*
-
-add_action( 'wp_enqueue_scripts', 'child_enqueue_parent_styles' );
-function child_enqueue_parent_styles() { wp_enqueue_style( 'parent-style', get_template_directory_uri().'/style.css' ); }
-
-add_filter( 'wpseo_stylesheet_url', function( $stylesheet ) {
-        if ( ! empty( $_SERVER['HTTP_HOST'] ) ) {
-                $proto = is_ssl() ? 'https://' : 'http://';
-
-                return preg_replace( '#(//[a-zA-Z0-9-.]+)#', $proto . $_SERVER['HTTP_HOST'], $stylesheet, 1 );
-        } else {
-                return $stylesheet;
-        }
-} );
-*/
-
-
 /* * sk-dev: START BASICS */ 
 
 // this pulls in any styles from the parent WP theme, ie. twentytwenty
 // do i need any of this??? I could put the use-system-font fallback as per CRA.
-
 function child_enqueue_parent_styles() {
    wp_enqueue_style( 'parent-style', get_template_directory_uri().'/style.css' );
 }
-
 add_action( 'wp_enqueue_scripts', 'child_enqueue_parent_styles' );
 
-// sk-dev: to check
+
+// sk-dev: don't think i want these, to check whats included...
 function twentytwenty_remove_scripts() {
     //wp_dequeue_style( 'twentytwenty-style' );
     //wp_deregister_style( 'twentytwenty-style' );
@@ -50,7 +31,7 @@ function twentytwenty_remove_scripts() {
     //wp_dequeue_script( 'twentytwenty-js' );
     //wp_deregister_script( 'twentytwenty-js' );
 
-    // Removes the parent themes stylesheet and scripts from inc/enqueue.php
+    // this removes the parent themes stylesheet and scripts from inc/enqueue.php
 }
 
 function theme_enqueue_styles() {
@@ -62,7 +43,6 @@ function theme_enqueue_styles() {
         wp_enqueue_style( 'bedrock-styles', 'https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css', array(), $the_theme->get( 'Version' ) );
     }
     
-
     //wp_enqueue_style( 'bedrock-styles', get_stylesheet_directory_uri() . '/css/child-theme.min.css', array(), $the_theme->get( 'Version' ) );
     //wp_enqueue_script( 'jquery');
     //wp_enqueue_script( 'bedrock-scripts', get_stylesheet_directory_uri() . '/js/child-theme.min.js', array(), $the_theme->get( 'Version' ), true );
@@ -88,7 +68,8 @@ add_action( 'after_setup_theme', 'add_theme_textdomain' );
 
 
 /* * sk-dev: END BASICS */ 
-
+/* */
+/* */ 
 
 
 /* * sk-dev: CORS / Headless / Decoupled / SSL tests 
@@ -98,19 +79,9 @@ To keep the native staging, cache plugin and wp tools I need to install wp to th
 A records not supported on the root domain.
 CCA records not supported.
 Free SSL certs, need to use the hosts nameservers
-
+XSL files ignore x-origin headers
 
 */ 
-
-
-/* * sk-dev: test to allow defined origins - CORS */ 
-//add_filter( 'allowed_http_origins', 'add_allowed_origins' );
-//function add_allowed_origins( $origins ) {
-//   $origins[] = 'https://primitivedigital.co.uk';
-//    $origins[] = 'https://primitivedigital.uk';
-//    $origins[] = 'https://primitive.press';
-//    return $origins;
-//} 
 
 function add_cors_http_header(){
     header("Access-Control-Allow-Origin: *");
@@ -128,6 +99,15 @@ add_action('init','add_cors_http_header');
 //    return $headers;
 //}
 
+/* * sk-dev: test to allow defined origins - CORS */ 
+//function add_allowed_origins( $origins ) {
+//   $origins[] = 'https://primitivedigital.co.uk';
+//    $origins[] = 'https://primitivedigital.uk';
+//    $origins[] = 'https://primitive.press';
+//    return $origins;
+//} 
+//add_filter( 'allowed_http_origins', 'add_allowed_origins' );
+
 /* * sk-dev: sledgehammer 2 */ 
 //add_action('wp_headers','just_add_cors_http_header');
 //function just_add_cors_http_header($headers){ $headers['Access-Control-Allow-Origin'] = '*'; return $headers; }
@@ -137,12 +117,47 @@ add_action('init','add_cors_http_header');
 
 
 /**
+ * Force Login WP Plugin
  * Bypass Force Login to allow for REST API
  *
  */
 remove_filter( 'rest_authentication_errors', 'v_forcelogin_rest_access', 99 );
 
-   
+
+/**
+ * Customise the login page
+ * 
+ * Modify the wp-login.php 'Logo, Link and Back to' URL
+*/
+
+function update_login_logo() { ?>
+    <style type="text/css">
+        #login h1 a, .login h1 a {
+            background-image: url(https://api.primitivedigital.uk/wp-content/uploads/img/punky_logo_smcoral.png);
+            width:229px;
+            height:80px;
+            background-size: 229px 80px;
+            background-repeat: no-repeat;
+            padding-bottom: 15px;
+        }
+    </style>
+<?php }
+add_action( 'login_enqueue_scripts', 'update_login_logo' );
+
+function update_login_title() { return "Primitive Digital's Big Backend"; }
+add_filter( 'login_headertitle', 'update_login_title' );
+
+function update_login_logolink() { return "https://primitivedigital.uk"; }
+add_filter( 'login_headerurl', 'update_login_logolink' );
+ 
+function update_login_backtolink( $url ) {
+	global $pagenow;
+	if( 'wp-login.php' === $pagenow ) { $url = 'https://primitivedigital.uk'; }
+	return $url;
+}
+add_filter( 'home_url', 'update_login_backtolink' );
+
+
 /**
  * Create a custom Theme SuperAdmin role / rights
 */
@@ -156,37 +171,6 @@ function add_custom_roles() {
     }
 }
 add_action('after_setup_theme','add_custom_roles');
-
-/**
- * Customise the login page
-*/
-
-function update_login_logo() { ?>
-    <style type="text/css">
-        #login h1 a, .login h1 a {
-            background-image: url(https://api.primitivedigital.uk/wp-content/uploads/img/punky_logo_smcoral.png);
-            height:80px;
-            width:229px;
-            background-size: 229px 80px;
-            background-repeat: no-repeat;
-            padding-bottom: 15px;
-        }
-    </style>
-<?php }
-add_action( 'login_enqueue_scripts', 'update_login_logo' );
-
-function update_login_url() {
-    return home_url();
-}
-add_filter( 'login_headerurl', 'update_login_url' );
- 
-function update_login_title() {
-    return 'Primitive Digital';
-}
-add_filter( 'login_headertitle', 'update_login_title' );
-
-
-
 
 /**
  * Create a Admin Menus for the theme.
@@ -281,7 +265,7 @@ function add_theme_settings_page() {
             }
         </code>
 
-        <p>Twenty Twenty Child theme to work with primitive-theme, see <a href="https://primitivedigital.uk/blog/primitiveone">Primitive Digital</a>.</p>
+        <p>Bedrock, Twenty Twenty Child theme to work with the primitive-theme for Frontity, see <a href="https://primitivedigital.uk/blog/primitiveone">Primitive Digital</a>.</p>
     </div>
 
 <?php
@@ -345,14 +329,14 @@ function display_theme_panel_fields() {
 
 function display_feature_boxes() {
     ?>
-    <h2>Block 1 (Located Above Footer)</h2>
+    <h2>Block 1</h2>
     <p>Enter any content for this section, typically information regarding...</p>
     <?php
         wp_editor(get_option('homepage_blurbone'), 'homepage_blurbone', $settings = array());
     ?>
     <hr>
 
-    <h2>Block 1 (Located Above Footer)</h2>
+    <h2>Block 2</h2>
     <p>Enter any content for this section, typically information.</p>
     <?php
         wp_editor(get_option('homepage_blurbtwo'), 'homepage_blurbtwo', $settings = array());
@@ -419,15 +403,15 @@ function theme_social_menu_fields() {
     add_settings_section("themeoptions_social", "", null, "theme-social");
     
     // sk-dev: section, fieldname
-    add_settings_field("header_title", null, "theme_social_menus_show_fields", "theme-soical", "themeoptions_social");
+    add_settings_field("header_title", null, "theme_social_menus_show_fields", "theme-social", "themeoptions_social");
 
-    add_settings_field("twitter_social", null, "theme_social_menus_show_fields", "theme-soical", "themeoptions_social");
-    add_settings_field("youtube_social", null, "theme_social_menus_show_fields", "soical-services", "themeoptions_social");
-    add_settings_field("linkin_social", null, "theme_social_menus_show_fields", "soical-services", "themeoptions_social");
-    add_settings_field("pintrest_social", null, "theme_social_menus_show_fields", "soical-services", "themeoptions_social");
-    add_settings_field("facebook_social", null, "theme_social_menus_show_fields", "soical-services", "themeoptions_social");
-    add_settings_field("spotify_social", null, "theme_social_menus_show_fields", "soical-services", "themeoptions_social");
-    add_settings_field("instagram_social", null, "theme_social_menus_show_fields", "soical-services", "themeoptions_social");
+    add_settings_field("twitter_social", null, "theme_social_menus_show_fields", "theme-social", "themeoptions_social");
+    add_settings_field("youtube_social", null, "theme_social_menus_show_fields", "social-services", "themeoptions_social");
+    add_settings_field("linkin_social", null, "theme_social_menus_show_fields", "social-services", "themeoptions_social");
+    add_settings_field("pintrest_social", null, "theme_social_menus_show_fields", "social-services", "themeoptions_social");
+    add_settings_field("facebook_social", null, "theme_social_menus_show_fields", "social-services", "themeoptions_social");
+    add_settings_field("spotify_social", null, "theme_social_menus_show_fields", "social-services", "themeoptions_social");
+    add_settings_field("instagram_social", null, "theme_social_menus_show_fields", "social-services", "themeoptions_social");
 
     // sk-dev: section, fieldname
     register_setting("themeoptions_social", "header_title");
@@ -441,14 +425,6 @@ function theme_social_menu_fields() {
     register_setting("themeoptions_social", "instagram_social");
 
 }
-
-
-
-
-
-
-
-
 
 
 // sk-dev: TO CHECK
@@ -503,6 +479,16 @@ if( function_exists('acf_add_options_page') ) { acf_add_options_page(); }
 // https://github.com/Yoast/wordpress-seo/issues/14240
 // https://wordpress.org/support/topic/canonicalized-urls-to-external-domain-not-in-sitemap/
 
+/*
+add_filter( 'wpseo_stylesheet_url', function( $stylesheet ) {
+    if ( ! empty( $_SERVER['HTTP_HOST'] ) ) {
+            $proto = is_ssl() ? 'https://' : 'http://';
+            return preg_replace( '#(//[a-zA-Z0-9-.]+)#', $proto . $_SERVER['HTTP_HOST'], $stylesheet, 1 );
+    } else {
+            return $stylesheet;
+    }
+} );
+/*
 
 
 // keep in mind, sitemaps are cached. for development disable it using:
