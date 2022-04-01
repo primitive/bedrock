@@ -10,10 +10,10 @@
  * @since 1.0.0
  */
 
-// Exit if accessed directly.
-defined( 'ABSPATH' ) || exit;
+// if(!welcome) { return "get outta my pub!" }
+if ( ! defined( 'ABSPATH' ) ) { exit; }
 
-/* * sk-dev: START BASICS */ 
+/* *** START BASICS *** */ 
 
 // this pulls in any styles from the parent WP theme, ie. twentytwenty
 // do i need any of this??? I could put the use-system-font fallback as per CRA.
@@ -23,15 +23,14 @@ function child_enqueue_parent_styles() {
 add_action( 'wp_enqueue_scripts', 'child_enqueue_parent_styles' );
 
 
-// sk-dev: don't think i want these, to check whats included...
+// remove unwanted parent theme stylesheet/scripts from inc/enqueue.php
 function twentytwenty_remove_scripts() {
+    
     //wp_dequeue_style( 'twentytwenty-style' );
     //wp_deregister_style( 'twentytwenty-style' );
-
     //wp_dequeue_script( 'twentytwenty-js' );
     //wp_deregister_script( 'twentytwenty-js' );
 
-    // this removes the parent themes stylesheet and scripts from inc/enqueue.php
 }
 
 function theme_enqueue_styles() {
@@ -130,6 +129,7 @@ remove_filter( 'rest_authentication_errors', 'v_forcelogin_rest_access', 99 );
  * Modify the wp-login.php 'Logo, Link and Back to' URL
 */
 
+add_action( 'login_enqueue_scripts', 'update_login_logo' );
 function update_login_logo() { ?>
     <style type="text/css">
         #login h1 a, .login h1 a {
@@ -142,20 +142,24 @@ function update_login_logo() { ?>
         }
     </style>
 <?php }
-add_action( 'login_enqueue_scripts', 'update_login_logo' );
 
+add_filter( 'login_headertext', 'update_login_title' );
 function update_login_title() { return "Primitive Digital's Big Backend"; }
-add_filter( 'login_headertitle', 'update_login_title' );
 
-function update_login_logolink() { return "https://primitivedigital.uk"; }
 add_filter( 'login_headerurl', 'update_login_logolink' );
- 
+function update_login_logolink() { return "https://primitivedigital.uk"; }
+
+add_filter( 'home_url', 'update_login_backtolink' );
 function update_login_backtolink( $url ) {
 	global $pagenow;
 	if( 'wp-login.php' === $pagenow ) { $url = 'https://primitivedigital.uk'; }
 	return $url;
 }
-add_filter( 'home_url', 'update_login_backtolink' );
+
+
+
+// Admin Bar
+//add_theme_support( 'admin-bar', array( 'callback' => '__return_false' ) );
 
 
 /**
@@ -198,39 +202,15 @@ add_action("admin_menu", "add_admin_menu");
 function add_theme_settings_page() {
 ?>
     <div>
-        <h1>Global Settings</h1>
+        <h1>Theme Settings</h1>
         <p>Tests to expose my global config in the api</p>
 
         <code>
         {
-            frontity: {
-                homepage: "/home/",
-                postsPage: "/blog/",
-                {
-                    type: "works",
-                    endpoint: "works",
-                },
-                {
-                    type: "temporal_events",
-                    endpoint: "temporal_events",
-                    archive: "/evolution-of-digital-stuff"
-                },
-                taxonomies: [
-                    {
-                        taxonomy: "timelines",
-                        endpoint: "timelines",
-                        postTypeEndpoint: "/temporal_events",
-                    }
-                ]
-            },
+
             primitiveone: {
                 googleAnalytics: {
                     trackingIds: ['xxx']
-                },
-                featured: {
-                    showOnList: true,
-                    showOnPost: true,
-                    showOnPage: true
                 },
                 rootEm: "62.5%",
                 breakpoints: {
@@ -358,44 +338,47 @@ add_action("admin_init", "theme_social_menu_fields");
 
 function theme_settings_general_fields() {
 
-    add_settings_section("theme_settings_options", "", null, "theme-options");
+    add_settings_section("theme_settings_section", "", null, "theme-options");
     // Field Name
-    add_settings_field("background_image", null, "theme_settings_menus_show_fields", "theme-options", "theme_settings_options");
-    add_settings_field("company_name", null, "theme_settings_menus_show_fields", "theme-options", "theme_settings_options");
-    add_settings_field("company_tag", null, "theme_settings_menus_show_fields", "theme-options", "theme_settings_options");
-    add_settings_field("company_logo", null, "theme_settings_menus_show_fields", "theme-options", "theme_settings_options");
-    add_settings_field("company_logo_white", null, "theme_settings_menus_show_fields", "theme-options", "theme_settings_options");
-    add_settings_field("company_copyright", null, "theme_settings_menus_show_fields", "theme-options", "theme_settings_options");
-    add_settings_field("company_legal", null, "theme_settings_menus_show_fields", "theme-options", "theme_settings_options");
-    add_settings_field("company_address", null, "theme_settings_menus_show_fields", "theme-options", "theme_settings_options");
-    add_settings_field("company_contact_phone", null, "theme_settings_menus_show_fields", "theme-options", "theme_settings_options");
-    add_settings_field("company_contact_email", null, "theme_settings_menus_show_fields", "theme-options", "theme_settings_options");
-    add_settings_field("header_company_phone", null, "theme_settings_menus_show_fields", "theme-options", "theme_settings_options");
-    add_settings_field("header_compnay_email", null, "theme_settings_menus_show_fields", "theme-options", "theme_settings_options");
-    add_settings_field("footer_location_title", null, "theme_settings_menus_show_fields", "theme-options", "theme_settings_options");
-    add_settings_field("footer_contactform", null, "theme_settings_menus_show_fields", "theme-options", "theme_settings_options");
-    add_settings_field("footer_background", null, "theme_settings_menus_show_fields", "theme-options", "theme_settings_options");
-    add_settings_field("footer_logo", null, "theme_settings_menus_show_fields", "theme-options", "theme_settings_options");
-    add_settings_field("footer_background", null, "theme_settings_menus_show_fields", "theme-options", "theme_settings_options");
+    add_settings_field("background_image", null, "theme_settings_fields", "theme-options", "theme_settings_section");
     
-    register_setting("theme_settings_options", "company_name");
-    register_setting("theme_settings_options", "company_tag");
-    register_setting("theme_settings_options", "company_logo");
-    register_setting("theme_settings_options", "company_logo_white");
-    register_setting("theme_settings_options", "company_address");
-    register_setting("theme_settings_options", "company_contact_phone");
-    register_setting("theme_settings_options", "company_contact_email");
-    register_setting("theme_settings_options", "company_copyright");
-    register_setting("theme_settings_options", "company_legal");
+    add_settings_field("brand_name", null, "theme_settings_fields", "theme-options", "theme_settings_section");
+    add_settings_field("brand_tag", null, "theme_settings_fields", "theme-options", "theme_settings_section");
+    add_settings_field("brand_logo", null, "theme_settings_fields", "theme-options", "theme_settings_section");
+    add_settings_field("brand_logo_inverse", null, "theme_settings_fields", "theme-options", "theme_settings_section");
+    
+    add_settings_field("brand_copyright", null, "theme_settings_fields", "theme-options", "theme_settings_section");
+    add_settings_field("brand_legal", null, "theme_settings_fields", "theme-options", "theme_settings_section");
+    add_settings_field("brand_address", null, "theme_settings_fields", "theme-options", "theme_settings_section");
+    add_settings_field("brand_contact_phone", null, "theme_settings_fields", "theme-options", "theme_settings_section");
+    add_settings_field("brand_contact_email", null, "theme_settings_fields", "theme-options", "theme_settings_section");
+    
+    add_settings_field("header_brand_phone", null, "theme_settings_fields", "theme-options", "theme_settings_section");
+    add_settings_field("header_compnay_email", null, "theme_settings_fields", "theme-options", "theme_settings_section");
+    add_settings_field("footer_location_title", null, "theme_settings_fields", "theme-options", "theme_settings_section");
+    add_settings_field("footer_contactform", null, "theme_settings_fields", "theme-options", "theme_settings_section");
+    add_settings_field("footer_background", null, "theme_settings_fields", "theme-options", "theme_settings_section");
+    add_settings_field("footer_logo", null, "theme_settings_fields", "theme-options", "theme_settings_section");
+    add_settings_field("footer_background", null, "theme_settings_fields", "theme-options", "theme_settings_section");
+    
+    register_setting("theme_settings_section", "brand_name");
+    register_setting("theme_settings_section", "brand_tag");
+    register_setting("theme_settings_section", "brand_logo");
+    register_setting("theme_settings_section", "brand_logo_inverse");
+    register_setting("theme_settings_section", "brand_address");
+    register_setting("theme_settings_section", "brand_contact_phone");
+    register_setting("theme_settings_section", "brand_contact_email");
+    register_setting("theme_settings_section", "brand_copyright");
+    register_setting("theme_settings_section", "brand_legal");
 
-    register_setting("theme_settings_options", "background_image");
-    register_setting("theme_settings_options", "header_company_phone");
-    register_setting("theme_settings_options", "header_company_email");
-    register_setting("theme_settings_options", "footer_location_title");
-    register_setting("theme_settings_options", "footer_contactform");
-    register_setting("theme_settings_options", "footer_background");
-    register_setting("theme_settings_options", "footer_logo");
-    register_setting("theme_settings_options", "footer_background");
+    register_setting("theme_settings_section", "background_image");
+    register_setting("theme_settings_section", "header_brand_phone");
+    register_setting("theme_settings_section", "header_brand_email");
+    register_setting("theme_settings_section", "footer_location_title");
+    register_setting("theme_settings_section", "footer_contactform");
+    register_setting("theme_settings_section", "footer_background");
+    register_setting("theme_settings_section", "footer_logo");
+    register_setting("theme_settings_section", "footer_background");
 }
 
 function theme_social_menu_fields() {
@@ -426,6 +409,27 @@ function theme_social_menu_fields() {
 
 }
 
+/**
+ * add support for the editor colours
+*/
+add_theme_support( 'editor-color-palette', array(
+	array(
+		'name'  => __( 'Brand Primary', 'dooreightyfour' ),
+		'slug'  => 'light-gray',
+		'color'	=> '#f5f5f5',
+	),
+	array(
+		'name'  => __( 'Medium gray', 'dooreightyfour' ),
+		'slug'  => 'medium-gray',
+		'color' => '#999',
+	),
+	array(
+		'name'  => __( 'Bum', 'dooreightyfour' ),
+		'slug'  => 'dark-gray',
+		'color' => '#333',
+       ),
+) );
+
 
 // sk-dev: TO CHECK
 
@@ -448,8 +452,7 @@ function find_grandad($post) {
 /**
  * support for the _shuffle_and_pick WP_Query argument.
 */
-add_filter( 'the_posts', function( $posts, \WP_Query $query )
-{
+add_filter( 'the_posts', function( $posts, \WP_Query $query ) {
     if( $pick = $query->get( '_shuffle_and_pick' ) )
     {
         shuffle( $posts );
@@ -493,6 +496,54 @@ add_filter( 'wpseo_stylesheet_url', function( $stylesheet ) {
 
 // keep in mind, sitemaps are cached. for development disable it using:
 add_filter( 'wpseo_enable_xml_sitemap_transient_caching', '__return_false');
+
+
+/**
+ * Manually register custom post types
+ */
+// Our custom post type function
+// https://developer.wordpress.org/reference/functions/register_post_type/
+/*
+function add_post_types() {
+
+        register_post_type('home_scenes',
+            array(
+            'labels' => array(
+                'public' => false,
+                'name' => __('Home Scenes'),
+                'singular_name' => __('Home Scene')),
+                'has_archive' => false,
+                'show_ui' => true,
+                'menu_position' => 2,
+                'menu_icon' => 'dashicons-admin-multisite',
+                'rewrite' => array(
+                    'slug' => 'slides'
+                ),
+                'supports' => false,
+                )
+        );
+
+        register_post_type('stores',
+            array('labels' => array(
+                'name' => __('Stores'),
+                'singular_name' => __('Store')),
+                'public' => true,
+                'has_archive' => false,
+                'show_ui' => true,
+                'menu_position' => 4,
+                'menu_icon' => 'dashicons-admin-multisite',
+                'rewrite' => array(
+                    'slug' => 'stores',
+                    'with_front' => true
+                ),
+                'supports' => array('title'),
+                'show_in_rest' => true
+            )
+        );
+}
+// Hook to init
+add_action('init', 'add_post_types');
+
 
 
 
