@@ -1,8 +1,7 @@
 <?php
 
 /**
- * Bedrock functions and definitions
- *
+ * Bedrock theme functions and definitions
  * @link https://developer.wordpress.org/themes/basics/theme-functions/
  *
  * @package WordPress
@@ -14,17 +13,22 @@
 if ( ! defined( 'ABSPATH' ) ) { exit; }
 
 
-/* *** VARS TO EXTRACT *** */ 
+/* *** sk-dev:(1) TBC > Is a Child Theme really needed with twentytwentytwo */
 
+/* *** sk-dev(2): TBC > Sharing config + mirror in editor views */
+/* *** VARS TO EXTRACT *** */ 
 
 $bedrock_login_headertext = "Primitive Digital's Big Backend";
 $bedrock_login_logolink = "https://primitivedigital.uk";
 $bedrock_login_backtolink = "https://primitivedigital.uk";
 
 
+
+/* *** sk-dev(3): TBC > All this needs a review and tidy up */
+
 /* *** START BASICS *** */ 
 
-// this pulls in any styles from the parent WP theme, ie. twentytwenty
+// this pulls in any styles from the parent WP theme, ie. twentytwentytwo
 // do i need any of this??? I could put the use-system-font fallback as per CRA.
 function child_enqueue_parent_styles() {
    wp_enqueue_style( 'parent-style', get_template_directory_uri().'/style.css' );
@@ -32,16 +36,14 @@ function child_enqueue_parent_styles() {
 add_action( 'wp_enqueue_scripts', 'child_enqueue_parent_styles' );
 
 // remove unwanted parent theme stylesheet/scripts from inc/enqueue.php
-function twentytwenty_remove_scripts() {
-    
-    //wp_dequeue_style( 'twentytwenty-style' );
-    //wp_deregister_style( 'twentytwenty-style' );
-    //wp_dequeue_script( 'twentytwenty-js' );
-    //wp_deregister_script( 'twentytwenty-js' );
+//function remove_parent_scripts() {
+    //wp_dequeue_style( 'twentytwentytwo-style' );
+    //wp_deregister_style( 'twentytwentytwo-style' );
+    //wp_dequeue_script( 'twentytwentytwo-js' );
+    //wp_deregister_script( 'twentytwentytwo-js' );
+//}
 
-}
-
-function theme_enqueue_styles() {
+function bedrock_enqueue_styles() {
 
 	// Get the theme data
     $the_theme = wp_get_theme();
@@ -68,8 +70,8 @@ function theme_enqueue_styles() {
 function add_theme_textdomain() {
     load_child_theme_textdomain( 'bedrock', get_stylesheet_directory() . '/languages' );
 }
-add_action( 'wp_enqueue_scripts', 'twentytwenty_remove_scripts', 20 );
-add_action( 'wp_enqueue_scripts', 'theme_enqueue_styles' );
+// add_action( 'wp_enqueue_scripts', 'remove_parent_scripts', 20 );
+add_action( 'wp_enqueue_scripts', 'bedrock_enqueue_styles' );
 add_action( 'after_setup_theme', 'add_theme_textdomain' );
 
 /* * sk-dev: END BASICS */ 
