@@ -13,6 +13,15 @@
 // if(!welcome) { return "get outta my pub!" }
 if ( ! defined( 'ABSPATH' ) ) { exit; }
 
+
+/* *** VARS TO EXTRACT *** */ 
+
+
+$bedrock_login_headertext = "Primitive Digital's Big Backend";
+$bedrock_login_logolink = "https://primitivedigital.uk";
+$bedrock_login_backtolink = "https://primitivedigital.uk";
+
+
 /* *** START BASICS *** */ 
 
 // this pulls in any styles from the parent WP theme, ie. twentytwenty
@@ -21,7 +30,6 @@ function child_enqueue_parent_styles() {
    wp_enqueue_style( 'parent-style', get_template_directory_uri().'/style.css' );
 }
 add_action( 'wp_enqueue_scripts', 'child_enqueue_parent_styles' );
-
 
 // remove unwanted parent theme stylesheet/scripts from inc/enqueue.php
 function twentytwenty_remove_scripts() {
@@ -39,7 +47,7 @@ function theme_enqueue_styles() {
     $the_theme = wp_get_theme();
 
     if( is_user_logged_in() && !current_user_can( 'administrator' ) ) {
-        wp_enqueue_style( 'bedrock-styles', 'https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css', array(), $the_theme->get( 'Version' ) );
+        wp_enqueue_style( 'bedrock-styles', 'https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css', array(), $the_theme->get( 'Version' ) );
     }
     
     //wp_enqueue_style( 'bedrock-styles', get_stylesheet_directory_uri() . '/css/child-theme.min.css', array(), $the_theme->get( 'Version' ) );
@@ -60,11 +68,9 @@ function theme_enqueue_styles() {
 function add_theme_textdomain() {
     load_child_theme_textdomain( 'bedrock', get_stylesheet_directory() . '/languages' );
 }
-
 add_action( 'wp_enqueue_scripts', 'twentytwenty_remove_scripts', 20 );
 add_action( 'wp_enqueue_scripts', 'theme_enqueue_styles' );
 add_action( 'after_setup_theme', 'add_theme_textdomain' );
-
 
 /* * sk-dev: END BASICS */ 
 /* */
@@ -202,7 +208,7 @@ add_action("admin_menu", "add_admin_menu");
 function add_theme_settings_page() {
 ?>
     <div>
-        <h1>Theme Settings</h1>
+        <h1>Bedrock Theme Settings</h1>
         <p>Tests to expose my global config in the api</p>
 
         <code>
@@ -220,9 +226,6 @@ function add_theme_settings_page() {
                     xl: ""
                 }
             }
-                
-
-            
         }
         </code>
 
@@ -245,7 +248,7 @@ function add_theme_settings_page() {
             }
         </code>
 
-        <p>Bedrock, Twenty Twenty Child theme to work with the primitive-theme for Frontity, see <a href="https://primitivedigital.uk/blog/primitiveone">Primitive Digital</a>.</p>
+        <p>Bedrock, Twenty Twenty Child theme to work with the frontstrap theme for Frontity, see <a href="https://primitivedigital.uk/blog/primitiveone">Primitive Digital</a>.</p>
     </div>
 
 <?php
