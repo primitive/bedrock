@@ -26,3 +26,17 @@ function custom_image_sizes() {
     add_image_size( 'bedrock-custom', 1980, 9999 ); // Change dimensions as needed, add true to crop.
 }
 add_action( 'after_setup_theme', 'custom_image_sizes' );
+
+
+
+
+/* *** VARS FOR LOGIN FRONTEND/BACKEND SETUP *** */ 
+
+// $bedrock_login_headertext = "Primitive Digital's Big Backend";
+// $bedrock_login_logolink = "https://primitivedigital.uk";
+// $bedrock_login_backtolink = "https://primitivedigital.uk";
+
+// sk-dev: TO CHECK if needed
+// add_theme_support('automatic-feed-links');
+// add_theme_support('title-tag');
+// add_theme_support('post-thumbnails');
