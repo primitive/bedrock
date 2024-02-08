@@ -13,6 +13,8 @@
 if ( ! defined( 'ABSPATH' ) ) { exit; }
 
 
+/* *** sk-dev: TBC > This should only include "theme" related config */
+
 /*
 Plugin Name: Custom Image Sizes
 Description: Register custom image sizes for use in your WordPress site.
